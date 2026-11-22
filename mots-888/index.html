@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#14121f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Mots 888">
+<title>Mots 888</title>
+<style>
+:root{
+  --bg:#14121f; --bg2:#1d1a2c; --card:#262238; --line:#38324f;
+  --tx:#f3f0ff; --tx2:#b3abd1; --tx3:#7d76a0;
+  --acc:#ffb547; --acc2:#8b7bff; --ok:#3ddc97; --ko:#ff6b81; --mid:#ffd166;
+  --r:22px; --safe-b:env(safe-area-inset-bottom,0px); --safe-t:env(safe-area-inset-top,0px);
+}
+@media (prefers-color-scheme: light){
+  :root{--bg:#f6f3ec; --bg2:#ece7dc; --card:#ffffff; --line:#e2dccd; --tx:#1d1a2c; --tx2:#5b5570; --tx3:#958fa8; --acc:#e08a00; --acc2:#5b4bdb; --ok:#14a86b; --ko:#e0435c; --mid:#c99400;}
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.45 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif;overscroll-behavior:none}
+body{min-height:100dvh;padding-top:var(--safe-t)}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+.serif{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif}
+.wrap{max-width:560px;margin:0 auto;padding:16px 16px calc(110px + var(--safe-b))}
+.hidden{display:none!important}
+/* header */
+.top{display:flex;align-items:center;justify-content:space-between;padding:6px 2px 14px}
+.brand{font-weight:800;font-size:22px;letter-spacing:-.02em}
+.brand span{color:var(--acc)}
+.iconbtn{width:42px;height:42px;border-radius:14px;background:var(--bg2);display:grid;place-items:center;font-size:19px}
+/* hero */
+.hero{background:linear-gradient(135deg,var(--acc2),#c06bff 60%,var(--acc));border-radius:28px;padding:22px;color:#fff;position:relative;overflow:hidden}
+.hero h2{margin:0 0 4px;font-size:15px;font-weight:600;opacity:.9}
+.hero .big{font-size:42px;font-weight:800;letter-spacing:-.03em;line-height:1.05}
+.hero .sub{opacity:.92;font-size:14px;margin-top:6px}
+.hero .go{margin-top:18px;width:100%;padding:16px;border-radius:18px;background:#fff;color:#2a1f63;font-weight:800;font-size:17px;box-shadow:0 8px 24px #0003}
+.hero .streak{position:absolute;top:18px;right:18px;background:#ffffff2e;border-radius:99px;padding:5px 11px;font-weight:700;font-size:14px}
+/* mastery bar */
+.mbar{display:flex;height:12px;border-radius:99px;overflow:hidden;background:var(--bg2);margin:18px 0 8px}
+.mbar i{display:block;height:100%}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:13px;color:var(--tx2)}
+.legend b{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:5px;vertical-align:0}
+h3.sec{font-size:13px;text-transform:uppercase;letter-spacing:.09em;color:var(--tx3);margin:26px 4px 10px;font-weight:700}
+/* modes grid */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mode{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px 14px;text-align:left;min-height:112px;display:flex;flex-direction:column;justify-content:space-between;transition:transform .12s}
+.mode:active{transform:scale(.97)}
+.mode .ic{font-size:26px}
+.mode .t{font-weight:750;font-size:16px;margin-top:8px}
+.mode .d{font-size:12.5px;color:var(--tx2);line-height:1.3}
+.row{display:flex;gap:10px}
+.pill{flex:1;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px;text-align:center;font-weight:650}
+/* quiz */
+.qtop{display:flex;align-items:center;gap:12px;padding:4px 0 14px}
+.prog{flex:1;height:8px;background:var(--bg2);border-radius:99px;overflow:hidden}
+.prog i{display:block;height:100%;background:linear-gradient(90deg,var(--acc2),var(--acc));border-radius:99px;transition:width .3s}
+.qcount{font-size:13px;color:var(--tx2);font-variant-numeric:tabular-nums;min-width:44px;text-align:right}
+.kind{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--acc);margin-bottom:10px}
+.qcard{background:var(--card);border:1px solid var(--line);border-radius:26px;padding:22px 20px;min-height:180px;display:flex;flex-direction:column;justify-content:center;animation:pop .25s ease}
+@keyframes pop{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.shake{animation:shake .25s 2}
+.qword{font-size:34px;font-weight:700;letter-spacing:-.01em;line-height:1.15;word-break:break-word}
+.qdef{font-size:19px;line-height:1.45}
+.qhint{color:var(--tx2);font-size:14px;margin-top:12px}
+.qimg{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:18px;background:var(--bg2);display:block}
+.qprompt{font-size:15px;color:var(--tx2);margin:14px 2px 10px}
+.opts{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+.opt{background:var(--card);border:1.5px solid var(--line);border-radius:18px;padding:15px 16px;text-align:left;font-size:15.5px;line-height:1.35;transition:transform .1s,border-color .15s,background .15s}
+.opt:active{transform:scale(.985)}
+.opt.ok{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 16%,var(--card))}
+.opt.ko{border-color:var(--ko);background:color-mix(in srgb,var(--ko) 14%,var(--card))}
+.opt.dim{opacity:.45}
+.opt .w{font-weight:700;font-size:17px}
+input.ans{width:100%;margin-top:16px;padding:16px 18px;font-size:19px;border-radius:18px;border:1.5px solid var(--line);background:var(--bg2);color:var(--tx);outline:none}
+input.ans:focus{border-color:var(--acc2)}
+.dock{position:fixed;left:0;right:0;bottom:0;padding:12px 16px calc(12px + var(--safe-b));background:linear-gradient(transparent,var(--bg) 30%)}
+.dock .in{max-width:560px;margin:0 auto;display:flex;gap:10px}
+.btn{flex:1;padding:17px 12px;border-radius:18px;font-weight:750;font-size:16px;background:var(--bg2);border:1px solid var(--line)}
+.btn.pri{background:var(--acc2);color:#fff;border-color:transparent}
+.btn.ok{background:var(--ok);color:#06281a;border-color:transparent}
+.btn.ko{background:var(--ko);color:#fff;border-color:transparent}
+.btn.mid{background:var(--mid);color:#3a2a00;border-color:transparent}
+.btn small{display:block;font-weight:500;font-size:11.5px;opacity:.8}
+/* feedback */
+.fb{margin-top:14px;border-radius:24px;padding:18px;border:1px solid var(--line);background:var(--bg2);animation:pop .25s}
+.fb .verdict{font-weight:800;font-size:18px;margin-bottom:8px}
+.fb .verdict.ok{color:var(--ok)} .fb .verdict.ko{color:var(--ko)} .fb .verdict.mid{color:var(--mid)}
+.fb .w{font-size:24px;font-weight:700}
+.fb .d{margin-top:6px;font-size:15.5px}
+.ctx{display:flex;gap:10px;align-items:flex-start;margin-top:14px;padding:12px 14px;border-radius:16px;background:var(--card);font-size:14px;color:var(--tx2)}
+.ctx b{color:var(--tx)}
+.note{margin-top:10px;padding:12px 14px;border-radius:16px;background:color-mix(in srgb,var(--acc) 13%,var(--card));font-size:13.5px;color:var(--tx)}
+.fbimg{width:100%;max-height:240px;object-fit:cover;border-radius:16px;margin-top:12px;display:block}
+.speak{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:12px;background:var(--card);font-size:16px;vertical-align:middle;margin-left:6px}
+/* list */
+.search{width:100%;padding:14px 16px;border-radius:16px;border:1px solid var(--line);background:var(--bg2);color:var(--tx);font-size:16px;outline:none;margin-bottom:12px}
+.li{display:flex;align-items:center;gap:12px;padding:13px 6px;border-bottom:1px solid var(--line);width:100%;text-align:left}
+.li .dot{width:10px;height:10px;border-radius:50%;flex:none}
+.li .m{font-weight:650}
+.li .s{font-size:13px;color:var(--tx3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.li .txt{flex:1;min-width:0}
+/* sheet */
+.sheet-bg{position:fixed;inset:0;background:#0009;z-index:20;animation:fade .2s}
+@keyframes fade{from{opacity:0}}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:21;background:var(--bg);border-radius:28px 28px 0 0;max-height:92dvh;overflow:auto;padding:10px 18px calc(24px + var(--safe-b));animation:up .25s ease}
+@keyframes up{from{transform:translateY(40px);opacity:0}}
+.sheet .grab{width:44px;height:5px;border-radius:9px;background:var(--line);margin:4px auto 14px}
+.sheet .in{max-width:560px;margin:0 auto}
+.smallbtn{padding:10px 14px;border-radius:14px;background:var(--bg2);border:1px solid var(--line);font-size:14px;font-weight:600}
+.meta{font-size:13px;color:var(--tx3);margin-top:8px}
+.endstat{font-size:56px;font-weight:800;letter-spacing:-.03em;text-align:center}
+.center{text-align:center}
+.toast{position:fixed;left:50%;bottom:calc(100px + var(--safe-b));transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:10px 16px;border-radius:14px;font-size:14px;font-weight:600;z-index:40;animation:pop .2s}
+textarea{width:100%;min-height:120px;border-radius:14px;border:1px solid var(--line);background:var(--bg2);color:var(--tx);padding:12px;font:13px ui-monospace,monospace}
+.seg{display:flex;background:var(--bg2);border-radius:14px;padding:4px;gap:4px}
+.seg button{flex:1;padding:10px;border-radius:11px;font-weight:650;font-size:14px;color:var(--tx2)}
+.seg button.on{background:var(--card);color:var(--tx);box-shadow:0 1px 4px #0002}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<div id="dock" class="dock hidden"><div class="in" id="dockIn"></div></div>
+
+<script>
+"use strict";
+/* ============ DONNÉES ============ */
+const SEED = [{"id": "w0", "date": "01/07/2013", "mot": "le cilice", "def": "ceinture ou chemise de crin portée à même la peau pour faire pénitence. (≠ la silice : dioxyde de silicium, le sable)", "ctx": "", "wiki": "Cilice", "note": ""}, {"id": "w1", "date": "03/07/2013", "mot": "une panouille", "def": "petit rôle dans un film ou au théâtre", "ctx": "", "wiki": "", "note": ""}, {"id": "w2", "date": "04/07/2013", "mot": "c'est réné", "def": "c'est nul", "ctx": "", "wiki": "", "note": ""}, {"id": "w3", "date": "12/07/2013", "mot": "une éclisse", "def": "pièce d'acier qui relie deux rails bout à bout. Une éclisse défaillante a causé l'accident SNCF de Brétigny-sur-Orge le 12/07/2013", "ctx": "", "wiki": "Éclisse (chemin de fer)", "note": ""}, {"id": "w4", "date": "03/09/2013", "mot": "serotinal", "def": "lié à la dernière partie de l'été : Une floraison sérotinale se dit des fleurs ou des fruits qui apparaissent tardivement dans la saison", "ctx": "", "wiki": "", "note": ""}, {"id": "w5", "date": "05/09/2013", "mot": "un ramas", "def": "amas de choses (ou de personnes) de peu de valeur ; ramassis. Vieilli, péjoratif", "ctx": "", "wiki": "", "note": ""}, {"id": "w6", "date": "08/10/2013", "mot": "un cénotaphe", "def": "éty: une tombe vide", "ctx": "WP NasrEddin", "wiki": "Cénotaphe", "note": ""}, {"id": "w7", "date": "08/10/2013", "mot": "un oulema", "def": "théologien généralement sunnite de l'Islam.Ety : (arab) Alim =savant", "ctx": "WP NasrEddin", "wiki": "Ouléma", "note": ""}, {"id": "w8", "date": "31/01/2014", "mot": "Une didascalie", "def": "Note de l'auteur donnant des indications sur un personnage", "ctx": "Pelerin", "wiki": "Didascalie", "note": ""}, {"id": "w9", "date": "02/02/2014", "mot": "roboratif", "def": "fortifiant", "ctx": "Les racines du ciel Cyril Javary", "wiki": "", "note": ""}, {"id": "w10", "date": "02/02/2014", "mot": "un bardeau", "def": "Un bardeau est un petit élément de revêtement permettant de protéger des intempéries les toitures et les façades", "ctx": "le jeu des 1000 e", "wiki": "Bardeau (couverture)", "note": ""}, {"id": "w11", "date": "03/02/2014", "mot": "comminatoire", "def": "Désigne une mesure destinée à faire pression sur un débiteur, mais qui n’est pas définitive et est susceptible d’être révisée après un certain laps de temps. Ce qui implique, contient une menace. Menaçant", "ctx": "article alain minc", "wiki": "", "note": ""}, {"id": "w12", "date": "03/02/2014", "mot": "une sédition", "def": "Émeute populaire, révolte, soulèvement contre la puissance établie.", "ctx": "article alain minc", "wiki": "", "note": ""}, {"id": "w13", "date": "03/02/2014", "mot": "résipiscence", "def": "Reconnaissance de la faute avec retour au bien. repentance", "ctx": "article alain minc", "wiki": "", "note": ""}, {"id": "w14", "date": "02/03/2014", "mot": "oblatif", "def": "Se dit de quelque chose qui est offert à l’autre afin de le satisfaire. Amour oblatif", "ctx": "Podcast", "wiki": "", "note": ""}, {"id": "w15", "date": "31/03/2014", "mot": "Cabotin", "def": "Acteur qui cherche davantage à attirer l'attention du spectateur sur lui-même, qu'à servir son rôle.", "ctx": "conversation", "wiki": "Cabotinage", "note": ""}, {"id": "w16", "date": "31/03/2014", "mot": "se goberger", "def": "Se divertir, prendre ses aises, se bien traiter, manger d’une façon plantureuse.", "ctx": "Résultat élections", "wiki": "", "note": ""}, {"id": "w17", "date": "01/09/2014", "mot": "iatrogénèse", "def": "Ensemble des conséquences néfastes sur l'état de santé individuel ou collectif de tout acte ou mesure pratiquée ou prescrit par un professionnel de santé habilité et qui vise à préserver, améliorer ou rétablir la santé.", "ctx": "discussion avec le COS", "wiki": "", "note": ""}, {"id": "w18", "date": "16/09/2014", "mot": "un scrutin", "def": "(religion) un des trois passages de l'évangile (la samaritaine, l'aveugle né, la résurrection de Lazare). Par ces textes, le catéchumène se laisse scruter par Dieu", "ctx": "Podcast RCF", "wiki": "", "note": ""}, {"id": "w19", "date": "21/11/2014", "mot": "une hydre", "def": "Hydre de lerne : Cette créature est décrite comme un monstre possédant plusieurs têtes, dont une immortelle. Celles-ci se régénèrent doublement lorsqu'elles sont tranchées, et l'haleine soufflée par les multiples gueules exhale un dangereux poison, même durant le sommeil du monstre.", "ctx": "réunion professionnelle", "wiki": "Hydre de Lerne", "note": ""}, {"id": "w20", "date": "26/06/2015", "mot": "bitcher", "def": "faire la langue de pute", "ctx": "conversation", "wiki": "", "note": ""}, {"id": "w21", "date": "26/06/2015", "mot": "il s'évince que", "def": "juridique : il résulte que", "ctx": "dossier prud'hommes", "wiki": "", "note": ""}, {"id": "w22", "date": "02/08/2015", "mot": "mener la vie à grandes guides", "def": "Vivre largement, sur un grand pied, en dépensant beaucoup.", "ctx": "article sur la mort de Jacques Vergès", "wiki": "", "note": ""}, {"id": "w23", "date": "09/08/2015", "mot": "frette", "def": "n.f. (Musique) (Lutherie) Petite barrette, souvent métallique, placée en travers du manche de certains instruments de musique pour déterminer les intervalles successifs séparant les notes entre elles.", "ctx": "j'apprends la guitare", "wiki": "Frette (lutherie)", "note": ""}, {"id": "w24", "date": "12/08/2015", "mot": "boulisterie", "def": "Service consistant en un système de transport du courrier ou des paquets d'un chantier à un autre, faisant usage de conteneurs, de structures de courrier, le tout transporté soit par tapis roulant, soit par ascenseur, soit par énergie pneumatique dans un système de tuyauteries", "ctx": "article sur les opératrices au XXe s", "wiki": "", "note": ""}, {"id": "w25", "date": "20/10/2015", "mot": "evergetisme", "def": "consiste, pour les notables, à faire profiter la collectivité de leurs richesses.", "ctx": "Les racines du ciel", "wiki": "Évergétisme", "note": ""}, {"id": "w26", "date": "17/01/2016", "mot": "Tombolo", "def": "cordon de sable qui relie une île au continent (la presqu'île de Giens est un double tombolo)", "ctx": "week-end à Hyères", "wiki": "Tombolo", "note": ""}, {"id": "w27", "date": "02/03/2016", "mot": "Diasteme", "def": "Médical espace (entre deux dents par exemple)", "ctx": "rendez-vous médical", "wiki": "Diastème dentaire", "note": ""}, {"id": "w28", "date": "03/03/2016", "mot": "frondaison", "def": "partie haute des arbres", "ctx": "Étoile du matin", "wiki": "Canopée", "note": ""}, {"id": "w29", "date": "08/05/2016", "mot": "bief", "def": "section d'un canal de navigation délimitée par deux écluses", "ctx": "anniversaire au canal du Midi", "wiki": "Bief", "note": ""}, {"id": "w30", "date": "19/06/2016", "mot": "sancir", "def": "couler par l'avant pour un bâteau ou un hydravion", "ctx": "https://fr.wikipedia.org/wiki/Philippe_Cousteau", "wiki": "Hydravion", "note": ""}, {"id": "w31", "date": "02/06/2016", "mot": "Carminatif", "def": "Qui facilite les pets", "ctx": "textes sur huiles essentiels", "wiki": "", "note": ""}, {"id": "w32", "date": "01/07/2016", "mot": "anatocisme", "def": "le fait que, dans les obligations portant sur une dette d’argent, les intérêts échus des capitaux soient capitalisables", "ctx": "réunion avec un cabinet d'audit", "wiki": "", "note": ""}, {"id": "w33", "date": "29/07/2016", "mot": "store à banne", "def": "banne = grosse toile qui couvre des marchandises", "ctx": "chez des amis", "wiki": "Store banne", "note": ""}, {"id": "w34", "date": "25/09/2016", "mot": "avunculaire", "def": "qui a rapport à un oncle ou une tante", "ctx": "", "wiki": "", "note": ""}, {"id": "w35", "date": "30/09/2016", "mot": "anthroponyme", "def": "nom de personne (prénom, nom de famille, surnom). ≠ antonomase / éponyme : nom propre devenu nom commun, ex. poubelle (du préfet Poubelle)", "ctx": "ex : poubelle", "wiki": "Eugène Poubelle", "note": ""}, {"id": "w36", "date": "12/09/2017", "mot": "patène", "def": "n.f. petite soucoupe utilisée pour recueillir les hosties", "ctx": "lecture web", "wiki": "Patène", "note": ""}, {"id": "w37", "date": "30/10/2017", "mot": "mailloche", "def": "n.f. Une mailloche appelée aussi cigogne ou parfois battes (en musique) est un maillet utilisé pour frapper différents instruments de percussions, par exemple la grosse caisse, le surdo ou le vibraphone", "ctx": "lecture web", "wiki": "Mailloche", "note": ""}, {"id": "w38", "date": "03/11/2017", "mot": "triquetra", "def": "En symbologie, une triquetra (mot dérivé du latin tri-, « trois » et quetrus, « pourvu de coins ») est un symbole constitué de trois vesicae piscis, parfois accompagné d'un cercle intérieur ou extérieur1. Cette forme a été utilisée pour symboliser des groupes de trois objets ou de trois personnes.", "ctx": "Le centre du cercle", "wiki": "Triquetra", "note": ""}, {"id": "w39", "date": "03/11/2017", "mot": "hésychasme", "def": "L'hésychasme (du grec ἡσυχασμός, hesychasmos, de ἡσυχία, hesychia, « l'immobilité, le repos, calme, le silence ») est une pratique spirituelle mystique enracinée dans la tradition de l'Église orthodoxe et observée par l'hésychaste (en grec ἡσυχάζω, hesychadzo, « être en paix, garder le silence »). L'hésichasme vise la paix de l'âme ou le silence en Dieu. Cet usage trouve son expression dans la Philocalie des Pères neptiques, recueil de traités et de conseils concernant la vie spirituelle et la pratique de la prière.", "ctx": "", "wiki": "Grégoire Palamas", "note": ""}, {"id": "w40", "date": "01/11/2017", "mot": "epectase", "def": "L’épectase est, chez les chrétiens, un progrès de l’homme vers Dieu. Depuis les années 1970, ce mot désigne aussi, dans un sens familier, le décès pendant l'orgasme", "ctx": "un clip vidéo", "wiki": "", "note": ""}, {"id": "w41", "date": "06/12/2017", "mot": "doigts en coup de vent", "def": "doigt tordus à la naissance, tous pareils", "ctx": "conversation professionnelle", "wiki": "", "note": ""}, {"id": "w42", "date": "13/12/2018", "mot": "Échiffre", "def": "mur d'échiffre Mur contre lequel repose l'escalier.", "ctx": "la provence, à l'occasion des effondrements d'immeuble", "wiki": "Escalier échiffre", "note": ""}, {"id": "w43", "date": "18/05/2019", "mot": "Lanugo", "def": "N. M. duvet qui recouvre le foetus", "ctx": "", "wiki": "Lanugo", "note": ""}, {"id": "w44", "date": "09/01/2020", "mot": "Apostille", "def": "Addition ou modification portée en marge ou au bas d'un acte.", "ctx": "réunion professionnelle", "wiki": "Apostille (droit)", "note": ""}, {"id": "w45", "date": "23/01/2020", "mot": "idiopathique", "def": "(du grec ἰδιοπάθεια, affection qu'on éprouve pour soi-même) est un adjectif utilisé en médecine qui indique : soit une maladie ou symptôme existant par lui-même (c'est-à-dire sans lien avec une autre maladie), soit une maladie ou symptôme dont on n'a pu attribuer la cause.", "ctx": "conversation", "wiki": "", "note": ""}, {"id": "w46", "date": "27/02/2021", "mot": "béchique", "def": "[En parlant d'une plante médicinale, d'un remède] Qui est propre à guérir les maux de poitrine, surtout la toux`` ( Ac. 1798-1932 ).", "ctx": "notice de médicament", "wiki": "", "note": ""}, {"id": "w47", "date": "27/03/2021", "mot": "Hypochoristique", "def": "qui exprime une intention affectueuse (diminutif, redoublement, surnom tendre : Titou, Loulou, fifille)", "ctx": "", "wiki": "", "note": ""}, {"id": "w48", "date": "04/05/2021", "mot": "débet", "def": "Somme dont un comptable public ou un particulier est déclaré débiteur envers le Trésor.", "ctx": "comptabilité publique", "wiki": "", "note": ""}, {"id": "w49", "date": "21/01/2022", "mot": "corroyage", "def": "Le corroyage, du verbe corroyer qui signifie « apprêter, préparer » peut désigner un ensemble d'opérations techniques dans diverses branches de métiers.", "ctx": "marché public d'un collège qui demande une machine de corroyage", "wiki": "Corroyeuse", "note": ""}, {"id": "w50", "date": "13/03/2022", "mot": "obsidionale", "def": "relatif au siège des villes", "ctx": "Le monde culture commune de El Assad et putine", "wiki": "Monnaie obsidionale", "note": ""}, {"id": "w51", "date": "25/05/2022", "mot": "tabula-gratulatoria", "def": "liste des personnes et institutions qui s'associent à un hommage, publiée en tête d'un ouvrage de mélanges offert à un universitaire", "ctx": "dans cahier des charges", "wiki": "", "note": ""}, {"id": "w52", "date": "13/06/2022", "mot": "misoneisme", "def": "Le terme misonéisme désigne l'attitude consistant à rejeter tout nouveau concept, toute nouvelle conception du monde. Apparu en France en 1892, ce terme reste assez peu répandu, utilisé essentiellement par les anthropologues.", "ctx": "histoire des techniques", "wiki": "", "note": ""}, {"id": "w53", "date": "13/06/2022", "mot": "vaticination", "def": "Prédiction emphatique ou prétentieuse.", "ctx": "histoire des techniques", "wiki": "", "note": ""}, {"id": "w54", "date": "10/06/2023", "mot": "Confirmand", "def": "Eccl. Personne qui reçoit la confirmation", "ctx": "une confirmation à Sainte-Marie-Majeure", "wiki": "Confirmation (sacrement)", "note": ""}, {"id": "w55", "date": "29/09/2025", "mot": "Epicène", "def": "1. Se dit d'un nom qui a la même forme aux deux genres, correspondant aux deux sexes (par exemple un élève/une élève, un enfant/une enfant).\r\n2. Se dit d'un nom qui peut désigner indifféremment un mâle ou une femelle (par exemple la perdrix, le papillon).", "ctx": "contrat de formateur", "wiki": "", "note": ""}, {"id": "w56", "date": "02/10/2025", "mot": "batardeau", "def": "Un batardeau est un barrage destiné à la retenue d'eau provisoire en un lieu donné sur une surface donnée. En général, le batardeau est utilisé en vue d'exercer une activité en aval de celui-ci. Il est souvent réalisé avec des gabions et des palplanches.", "ctx": "conversation", "wiki": "Batardeau", "note": ""}, {"id": "w57", "date": "22/11/2026", "mot": "une oothèque", "def": "n.f. (Entomologie) Coque protectrice sécrétée par la femelle de certains insectes (mantes religieuses, blattes) et renfermant ses œufs. Durcie à l'air, elle protège la ponte du froid et des prédateurs pendant l'hiver. Éty : grec ôon, « œuf », et thêkê, « boîte, étui ».", "ctx": "à Serres", "wiki": "Oothèque", "note": ""}];
+const LS = { words:"m888.words", prog:"m888.prog", meta:"m888.meta" };
+const INTERVALS = [0,1,2,4,8,16,32,64,120]; // jours, par niveau (Leitner étendu)
+const DAY = 864e5;
+
+let WORDS = load(LS.words) || SEED;
+let PROG = load(LS.prog) || {};   // id -> {box, due, seen, ok, ko, last}
+let META = load(LS.meta) || { streak:0, lastDay:"", size:12, history:[] };
+
+function load(k){ try{ return JSON.parse(localStorage.getItem(k)); }catch(e){ return null; } }
+function save(){ localStorage.setItem(LS.prog,JSON.stringify(PROG)); localStorage.setItem(LS.meta,JSON.stringify(META)); }
+function saveWords(){ localStorage.setItem(LS.words,JSON.stringify(WORDS)); }
+
+/* ============ OUTILS TEXTE ============ */
+const strip = s => (s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+function core(mot){
+  let s = strip(mot).trim().replace(/[’]/g,"'");
+  s = s.replace(/^(le|la|les|un|une|des|se|c'est|il)\s+/,"").replace(/^(l'|s'|d')/,"");
+  return s.replace(/[^a-z]/g,"");
+}
+function displayWord(mot){ const t=(mot||"").trim(); return t.charAt(0).toUpperCase()+t.slice(1); }
+function lev(a,b){
+  const m=a.length,n=b.length; if(!m) return n; if(!n) return m;
+  let p=Array.from({length:n+1},(_,i)=>i);
+  for(let i=1;i<=m;i++){ let c=[i]; for(let j=1;j<=n;j++) c[j]=Math.min(p[j]+1,c[j-1]+1,p[j-1]+(a[i-1]===b[j-1]?0:1)); p=c; }
+  return p[n];
+}
+function judge(input, mot){
+  const a=core(input), b=core(mot);
+  if(!a) return "ko";
+  if(a===b) return "ok";
+  const d=lev(a,b), tol = b.length>=14 ? Math.floor(b.length*.18) : b.length>=8 ? 2 : b.length>=5 ? 1 : 0;
+  return d<=tol ? "near" : "ko";
+}
+function esc(s){ return (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+function maskDef(def, mot){
+  const c=core(mot); if(c.length<4) return def;
+  const stem=c.slice(0,Math.max(4,Math.min(6,c.length-1)));
+  return def.replace(/[\p{L}'’-]+/gu, tok => core(tok).startsWith(stem) ? "▁▁▁" : tok);
+}
+function shortDef(def, n=150){
+  let s=(def||"").replace(/\s+/g," ").trim();
+  if(s.length<=n) return s;
+  const cut=s.slice(0,n); const p=cut.lastIndexOf(". ");
+  return (p>60? cut.slice(0,p+1) : cut.slice(0,cut.lastIndexOf(" "))+"…");
+}
+function fmtDate(d){
+  const m=(d||"").match(/(\d{2})\/(\d{2})\/(\d{4})/); if(!m) return d||"";
+  const mois=["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."];
+  return `${+m[1]} ${mois[+m[2]-1]} ${m[3]}`;
+}
+const shuffle = a => { a=[...a]; for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];} return a; };
+const pick = (arr,n,excl=[]) => shuffle(arr.filter(x=>!excl.includes(x))).slice(0,n);
+const today = () => new Date().toISOString().slice(0,10);
+const buzz = p => { try{ navigator.vibrate && navigator.vibrate(p); }catch(e){} };
+function toast(t){ const d=document.createElement("div"); d.className="toast"; d.textContent=t; document.body.appendChild(d); setTimeout(()=>d.remove(),1800); }
+function speak(t){ try{ const u=new SpeechSynthesisUtterance(t); u.lang="fr-FR"; u.rate=.95; speechSynthesis.cancel(); speechSynthesis.speak(u);}catch(e){} }
+
+/* ============ IMAGES (IndexedDB, hors ligne après 1er chargement) ============ */
+const IDB = (()=>{ let dbp; const db=()=>dbp||(dbp=new Promise((res,rej)=>{const r=indexedDB.open("m888",1); r.onupgradeneeded=()=>r.result.createObjectStore("img"); r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error);}));
+  const tx=(mode,fn)=>db().then(d=>new Promise((res,rej)=>{const t=d.transaction("img",mode); const q=fn(t.objectStore("img")); t.oncomplete=()=>res(q&&q.result); t.onerror=()=>rej(t.error);}));
+  return { get:k=>tx("readonly",s=>s.get(k)), set:(k,v)=>tx("readwrite",s=>s.put(v,k)), del:k=>tx("readwrite",s=>s.delete(k)), keys:()=>tx("readonly",s=>s.getAllKeys()) };
+})();
+const imgMem = {}; let IMGKEYS = new Set();
+IDB.keys().then(k=>{ IMGKEYS=new Set(k); }).catch(()=>{});
+const blobToURL = b => new Promise(r=>{const f=new FileReader(); f.onload=()=>r(f.result); f.readAsDataURL(b);});
+async function getImg(w, allowNet=true){
+  if(imgMem[w.id]!==undefined) return imgMem[w.id];
+  try{ const v=await IDB.get(w.id); if(v){ imgMem[w.id]=v.src; return v.src; } }catch(e){}
+  if(!w.wiki || !allowNet || !navigator.onLine) return null;
+  try{
+    const u="https://fr.wikipedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrlimit=1&prop=pageimages&piprop=thumbnail&pithumbsize=640&gsrsearch="+encodeURIComponent(w.wiki);
+    const j=await (await fetch(u)).json(); const pages=j.query&&j.query.pages; if(!pages){ imgMem[w.id]=null; return null; }
+    const th=Object.values(pages)[0].thumbnail; if(!th){ imgMem[w.id]=null; return null; }
+    let src=th.source;
+    try{ const b=await (await fetch(src)).blob(); src=await blobToURL(b); }catch(e){}
+    await IDB.set(w.id,{src,from:"wiki"}).catch(()=>{}); IMGKEYS.add(w.id);
+    imgMem[w.id]=src; return src;
+  }catch(e){ imgMem[w.id]=null; return null; } // réessai au prochain lancement
+}
+function resizeFile(file){ return new Promise((res,rej)=>{ const img=new Image(); img.onload=()=>{ const s=Math.min(1,800/Math.max(img.width,img.height)); const c=document.createElement("canvas"); c.width=img.width*s; c.height=img.height*s; c.getContext("2d").drawImage(img,0,0,c.width,c.height); res(c.toDataURL("image/jpeg",.8)); URL.revokeObjectURL(img.src); }; img.onerror=rej; img.src=URL.createObjectURL(file); }); }
+const hasImg = w => !!w.wiki || IMGKEYS.has(w.id);
+
+/* ============ RÉPÉTITION ESPACÉE ============ */
+const P = id => PROG[id] || (PROG[id]={box:0,due:0,seen:0,ok:0,ko:0,last:0});
+function level(w){ const p=PROG[w.id]; if(!p||!p.seen) return 0; if(p.box>=5) return 3; if(p.box>=3) return 2; return 1; }
+const LVL = [{n:"Nouveaux",c:"var(--line)"},{n:"En apprentissage",c:"var(--ko)"},{n:"Consolidation",c:"var(--mid)"},{n:"Maîtrisés",c:"var(--ok)"}];
+function grade(w, g){ // g: 2 su, 1 hésitant, 0 raté
+  const p=P(w.id); p.seen++; p.last=Date.now();
+  if(g===2){ p.ok++; p.box=Math.min(INTERVALS.length-1,p.box+1); }
+  else if(g===1){ p.ok++; p.box=Math.max(1,p.box); }
+  else { p.ko++; p.box=1; }
+  p.due = Date.now() + (g===0 ? 0 : INTERVALS[p.box]*DAY - 3*36e5);
+  const t=today();
+  if(META.lastDay!==t){ const y=new Date(Date.now()-DAY).toISOString().slice(0,10); META.streak = META.lastDay===y ? META.streak+1 : 1; META.lastDay=t; }
+  save();
+}
+const dueList = () => WORDS.filter(w=>{const p=PROG[w.id]; return p&&p.seen&&p.due<=Date.now();});
+const newList = () => WORDS.filter(w=>!(PROG[w.id]&&PROG[w.id].seen));
+
+function buildSession(mode){
+  const size=META.size;
+  let pool = WORDS;
+  if(mode==="photo") pool = WORDS.filter(hasImg);
+  if(mode==="ctx") pool = WORDS.filter(w=>w.ctx);
+  const due = shuffle(pool.filter(w=>dueList().includes(w))).sort((a,b)=>P(a.id).box-P(b.id).box);
+  const fresh = shuffle(pool.filter(w=>newList().includes(w)));
+  const cap = mode==="daily" ? size-Math.min(3,fresh.length) : size;
+  let items=[...due.slice(0,cap)];
+  const nNew = Math.min(fresh.length, Math.max(mode==="daily"?3:size-items.length, size-items.length));
+  items.push(...fresh.slice(0,nNew));
+  if(items.length<size){ // compléter par les plus fragiles puis au hasard
+    const rest = shuffle(pool.filter(w=>!items.includes(w))).sort((a,b)=>(P(a.id).box)-(P(b.id).box));
+    items.push(...rest.slice(0,size-items.length));
+  }
+  return shuffle(items.slice(0,size));
+}
+// Type de question : du plus facile (reconnaissance) au plus exigeant (rappel) selon le niveau
+function qtypeFor(w, mode){
+  if(mode!=="daily") return mode==="ctx" ? (Math.random()<.5?"ctx2word":"word2ctx") : mode;
+  const box=P(w.id).box, r=Math.random();
+  const opts = box<=1 ? ["qcm","rqcm","flash"] : box<=3 ? ["rqcm","rev","flash","qcm"] : ["rev","flash","rev"];
+  if(hasImg(w) && r<.25) return "photo";
+  if(w.ctx && r>.85) return Math.random()<.5?"ctx2word":"word2ctx";
+  return opts[Math.random()*opts.length|0];
+}
+
+/* ============ RENDU ============ */
+const $app=document.getElementById("app"), $dock=document.getElementById("dock"), $dockIn=document.getElementById("dockIn");
+function dock(html){ if(!html){ $dock.classList.add("hidden"); $dockIn.innerHTML=""; return; } $dock.classList.remove("hidden"); $dockIn.innerHTML=html; }
+function h(html){ $app.innerHTML=html; window.scrollTo(0,0); }
+
+function home(){
+  const lv=[0,0,0,0]; WORDS.forEach(w=>lv[level(w)]++);
+  const due=dueList().length, nw=newList().length, N=WORDS.length;
+  const streakOk = META.lastDay===today() || META.lastDay===new Date(Date.now()-DAY).toISOString().slice(0,10);
+  const st = streakOk ? META.streak : 0;
+  h(`
+  <div class="top"><div class="brand">Mots<span>888</span></div>
+    <div class="row" style="flex:none"><button class="iconbtn" onclick="list()" aria-label="Lexique">📖</button><button class="iconbtn" onclick="settings()" aria-label="Réglages">⚙️</button></div></div>
+  <div class="hero">
+    ${st?`<div class="streak">🔥 ${st} j</div>`:""}
+    <h2>Séance du jour</h2>
+    <div class="big">${due ? due+" à revoir" : nw ? "Prêt ?" : "À jour ✓"}</div>
+    <div class="sub">${due?`+ quelques nouveaux mots · ${META.size} questions mélangées`: nw?`${nw} mots jamais vus · ${META.size} questions`:"Rien d'urgent : une séance libre consolide quand même."}</div>
+    <button class="go" onclick="start('daily')">Commencer ▸</button>
+  </div>
+  <div class="mbar">${lv.map((n,i)=>`<i style="width:${n/N*100}%;background:${LVL[i].c}"></i>`).join("")}</div>
+  <div class="legend">${lv.map((n,i)=>`<span><b style="background:${LVL[i].c}"></b>${LVL[i].n} ${n}</span>`).join("")}</div>
+
+  <h3 class="sec">Modes d'interrogation</h3>
+  <div class="grid">
+    ${modeBtn("flash","🃏","Flashcards","Mot → définition, tu t'auto-évalues")}
+    ${modeBtn("rev","✍️","Retrouve le mot","Définition → tu tapes le mot")}
+    ${modeBtn("qcm","🎯","QCM définitions","Mot → 4 définitions")}
+    ${modeBtn("rqcm","🔁","QCM inversé","Définition → 4 mots")}
+    ${modeBtn("photo","📸","Photo","Une image → quel mot ?")}
+    ${modeBtn("ctx","📍","Contexte","Où et quand l'as-tu croisé ?")}
+  </div>
+  <p class="meta center" style="margin-top:22px">${N} mots · du ${fmtDate(WORDS[0]&&WORDS[0].date)} au ${fmtDate(WORDS[N-1]&&WORDS[N-1].date)}</p>
+  `);
+  dock(null);
+}
+const modeBtn=(m,ic,t,d)=>`<button class="mode" onclick="start('${m}')"><div class="ic">${ic}</div><div><div class="t">${t}</div><div class="d">${d}</div></div></button>`;
+
+/* ---------- Séance ---------- */
+let S=null;
+function start(mode){
+  const items=buildSession(mode);
+  if(!items.length){ toast(mode==="photo"?"Aucun mot avec photo":"Aucun mot disponible"); return; }
+  S={mode, queue:items.map(w=>({w,t:qtypeFor(w,mode)})), i:0, score:0, total:0, wrong:[], retried:new Set()};
+  if(mode==="photo"||mode==="daily") items.filter(hasImg).forEach(w=>getImg(w));
+  ask();
+}
+function header(kind){
+  const n=S.queue.length;
+  return `<div class="qtop"><button class="iconbtn" onclick="quit()" aria-label="Quitter">✕</button>
+    <div class="prog"><i style="width:${S.i/n*100}%"></i></div><div class="qcount">${S.i+1}/${n}</div></div>
+    <div class="kind">${kind}</div>`;
+}
+function quit(){ if(S && S.i>0 && !confirm("Quitter la séance ? Tes réponses déjà données sont enregistrées.")) return; S=null; home(); }
+
+async function ask(){
+  if(S.i>=S.queue.length) return end();
+  const {w,t}=S.queue[S.i]; S.cur={w,t,answered:false};
+  const others=WORDS.filter(x=>x.id!==w.id && x.def);
+  if(t==="flash"){
+    h(header("🃏 Flashcard")+`
+      <div class="qcard"><div class="qword serif">${esc(displayWord(w.mot))}<button class="speak" onclick="speak('${esc(w.mot).replace(/'/g,"\\'")}')">🔊</button></div>
+      <div class="qhint">Formule la définition dans ta tête (ou à voix haute), puis retourne la carte.</div></div>
+      <div id="fb"></div>`);
+    dock(`<button class="btn pri" onclick="flip()">Retourner la carte</button>`);
+  }
+  else if(t==="rev"){
+    h(header("✍️ Retrouve le mot")+`
+      <div class="qcard"><div class="qdef serif">${esc(shortDef(maskDef(w.def,w.mot),320))}</div>
+      ${w.ctx?`<div class="qhint">📍 Indice de contexte disponible</div>`:""}</div>
+      <input class="ans" id="ans" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Ta réponse…" enterkeyhint="done">
+      <div id="hint" class="qhint"></div><div id="fb"></div>`);
+    dock(`<button class="btn" onclick="hint()">Indice</button><button class="btn" onclick="checkRev(true)">Je sèche</button><button class="btn pri" onclick="checkRev()">Valider</button>`);
+    const a=document.getElementById("ans"); a.addEventListener("keydown",e=>{ if(e.key==="Enter") checkRev(); }); setTimeout(()=>a.focus(),250);
+    S.cur.hints=0;
+  }
+  else if(t==="qcm"){
+    const opts=shuffle([w,...pick(others,3)]);
+    h(header("🎯 Quelle définition ?")+`
+      <div class="qcard"><div class="qword serif">${esc(displayWord(w.mot))}<button class="speak" onclick="speak('${esc(w.mot).replace(/'/g,"\\'")}')">🔊</button></div></div>
+      <div class="opts">${opts.map(o=>`<button class="opt" data-id="${o.id}" onclick="choose(this)">${esc(shortDef(maskDef(o.def,o.mot),140))}</button>`).join("")}</div><div id="fb"></div>`);
+    dock(null);
+  }
+  else if(t==="rqcm"){
+    const opts=shuffle([w,...pick(WORDS.filter(x=>x.id!==w.id),3)]);
+    h(header("🔁 Quel mot ?")+`
+      <div class="qcard"><div class="qdef serif">${esc(shortDef(maskDef(w.def,w.mot),280))}</div></div>
+      <div class="opts">${opts.map(o=>`<button class="opt" data-id="${o.id}" onclick="choose(this)"><span class="w serif">${esc(displayWord(o.mot))}</span></button>`).join("")}</div><div id="fb"></div>`);
+    dock(null);
+  }
+  else if(t==="photo"){
+    h(header("📸 Quel mot pour cette image ?")+`<div class="qcard" style="padding:12px"><div id="imgbox" class="qimg" style="display:grid;place-items:center;color:var(--tx3)">Chargement…</div></div><div id="opts"></div><div id="fb"></div>`);
+    dock(null);
+    const src=await getImg(w);
+    if(!S||S.cur.w!==w) return;
+    if(!src){ S.queue[S.i].t="rqcm"; return ask(); } // pas d'image dispo (hors ligne) -> bascule
+    document.getElementById("imgbox").outerHTML=`<img class="qimg" src="${src}" alt="">`;
+    const opts=shuffle([w,...pick(WORDS.filter(x=>x.id!==w.id),3)]);
+    document.getElementById("opts").innerHTML=`<div class="opts">${opts.map(o=>`<button class="opt" data-id="${o.id}" onclick="choose(this)"><span class="w serif">${esc(displayWord(o.mot))}</span></button>`).join("")}</div>`;
+  }
+  else if(t==="word2ctx"){
+    const pool=WORDS.filter(x=>x.id!==w.id && x.ctx && x.ctx!==w.ctx);
+    const opts=shuffle([w,...pick(pool,3)]);
+    h(header("📍 Où l'as-tu croisé ?")+`
+      <div class="qcard"><div class="qword serif">${esc(displayWord(w.mot))}</div><div class="qhint">Retrouve le contexte dans lequel tu as noté ce mot.</div></div>
+      <div class="opts">${opts.map(o=>`<button class="opt" data-id="${o.id}" onclick="choose(this)">📍 ${esc(o.ctx)}<div class="meta">${fmtDate(o.date)}</div></button>`).join("")}</div><div id="fb"></div>`);
+    dock(null);
+  }
+  else if(t==="ctx2word"){
+    const opts=shuffle([w,...pick(WORDS.filter(x=>x.id!==w.id),3)]);
+    h(header("📍 Souvenir")+`
+      <div class="qcard"><div class="qhint" style="margin:0 0 6px">Le <b>${fmtDate(w.date)}</b>, contexte :</div>
+      <div class="qdef serif">« ${esc(w.ctx)} »</div>
+      <div class="qhint">Indice : ${esc(shortDef(maskDef(w.def,w.mot),90))}</div></div>
+      <div class="opts">${opts.map(o=>`<button class="opt" data-id="${o.id}" onclick="choose(this)"><span class="w serif">${esc(displayWord(o.mot))}</span></button>`).join("")}</div><div id="fb"></div>`);
+    dock(null);
+  }
+}
+
+function hint(){
+  const w=S.cur.w; S.cur.hints++;
+  const c=w.mot.trim().replace(/^(le |la |les |un |une |se |l'|s')/i,"");
+  const parts=[];
+  if(S.cur.hints>=1) parts.push(`${c.length} lettres · commence par « ${c[0].toUpperCase()} »`);
+  if(S.cur.hints>=2 && w.ctx) parts.push(`📍 ${esc(w.ctx)} (${fmtDate(w.date)})`);
+  if(S.cur.hints>=3) parts.push(`« ${esc(c.slice(0,Math.ceil(c.length/2)))}… »`);
+  document.getElementById("hint").innerHTML=parts.join("<br>");
+}
+function checkRev(giveUp){
+  if(S.cur.answered) return;
+  const w=S.cur.w, v=giveUp?"":document.getElementById("ans").value;
+  if(!giveUp && !v.trim()){ document.getElementById("ans").focus(); return; }
+  let r=judge(v,w.mot);
+  let g = r==="ok" ? (S.cur.hints?1:2) : r==="near" ? 1 : 0;
+  document.getElementById("ans").blur();
+  feedback(g, r==="near" ? `Presque ! Orthographe exacte :` : null, v);
+}
+function choose(el){
+  if(S.cur.answered) return;
+  const w=S.cur.w, ok=el.dataset.id===w.id;
+  document.querySelectorAll(".opt").forEach(o=>{ if(o.dataset.id===w.id) o.classList.add("ok"); else if(o===el) o.classList.add("ko"); else o.classList.add("dim"); });
+  if(!ok) el.classList.add("shake");
+  feedback(ok?2:0);
+}
+function flip(){
+  const w=S.cur.w;
+  document.getElementById("fb").innerHTML=answerCard(w);
+  loadFbImg(w);
+  dock(`<button class="btn ko" onclick="selfGrade(0)">Raté<small>à revoir vite</small></button><button class="btn mid" onclick="selfGrade(1)">Hésitant<small>demain</small></button><button class="btn ok" onclick="selfGrade(2)">Su !<small>+ espacé</small></button>`);
+}
+function selfGrade(g){ S.cur.answered=true; record(g); next(); }
+
+function answerCard(w, verdict){
+  return `<div class="fb">${verdict||""}
+    <div class="w serif">${esc(displayWord(w.mot))}<button class="speak" onclick="speak('${esc(w.mot).replace(/'/g,"\\'")}')">🔊</button></div>
+    <div class="d">${esc(w.def||"—")}</div>
+    <div id="fbimgwrap"></div>
+    ${w.note?`<div class="note">💡 ${esc(w.note)}</div>`:""}
+    <div class="ctx"><span>📍</span><div><b>${fmtDate(w.date)}</b>${w.ctx?` · ${esc(w.ctx)}`:" · contexte non renseigné"}</div></div>
+  </div>`;
+}
+async function loadFbImg(w){ if(!hasImg(w)) return; const src=await getImg(w); const el=document.getElementById("fbimgwrap"); if(src&&el&&S&&S.cur.w===w&&S.cur.t!=="photo") el.innerHTML=`<img class="fbimg" src="${src}" alt="">`; }
+
+function record(g){
+  const w=S.cur.w; grade(w,g); S.total++; if(g>0) S.score+= g===2?1:.5;
+  if(g===0 && !S.retried.has(w.id)){ S.retried.add(w.id); S.wrong.push(w); S.queue.push({w,t: S.queue[S.i].t==="flash"?"flash":"rqcm"}); }
+}
+function feedback(g, msg, typed){
+  S.cur.answered=true; record(g); buzz(g===2?15:g===1?[15,40,15]:[60,40,60]);
+  const v = g===2?`<div class="verdict ok">✓ Exact</div>`: g===1?`<div class="verdict mid">≈ ${msg||"Bien, avec aide"}</div>`:`<div class="verdict ko">✗ ${typed?`Tu as répondu « ${esc(typed)} »`:"Raté — il reviendra en fin de séance"}</div>`;
+  document.getElementById("fb").innerHTML=answerCard(S.cur.w,v);
+  loadFbImg(S.cur.w);
+  dock(`<button class="btn pri" onclick="next()">Continuer ▸</button>`);
+  setTimeout(()=>{ const f=document.getElementById("fb"); f&&f.scrollIntoView({behavior:"smooth",block:"start"}); },60);
+}
+function next(){ S.i++; ask(); }
+
+function end(){
+  const pct = S.total? Math.round(S.score/S.total*100):0;
+  META.history.push({d:Date.now(),pct,n:S.total}); META.history=META.history.slice(-60); save();
+  const msg = pct>=90?"Remarquable.":pct>=70?"Solide. Les ratés reviendront demain.":pct>=50?"Ça rentre. C'est l'effort de rappel qui fixe le souvenir.":"Séance difficile = séance utile : se tromper puis voir la réponse renforce la mémorisation.";
+  h(`<div style="padding-top:40px" class="center">
+      <div style="font-size:54px">${pct>=70?"🎉":"💪"}</div>
+      <div class="endstat">${pct}%</div>
+      <p style="color:var(--tx2);margin:6px 20px 24px">${msg}</p></div>
+      ${S.wrong.length?`<h3 class="sec">À retravailler</h3>${S.wrong.map(liHTML).join("")}`:""}`);
+  dock(`<button class="btn" onclick="home()">Accueil</button><button class="btn pri" onclick="start('${S.mode}')">Encore une</button>`);
+}
+
+/* ---------- Lexique ---------- */
+let LFILTER=-1;
+function liHTML(w){ const l=level(w); return `<button class="li" onclick="detail('${w.id}')"><span class="dot" style="background:${LVL[l].c}"></span><span class="txt"><div class="m serif">${esc(displayWord(w.mot))}</div><div class="s">${esc(shortDef(w.def,80))}</div></span><span class="s">${(w.date||"").slice(-4)}</span></button>`; }
+function list(){
+  h(`<div class="top"><button class="iconbtn" onclick="home()">‹</button><div class="brand" style="font-size:19px">Lexique · ${WORDS.length}</div><span style="width:42px"></span></div>
+    <input class="search" id="q" placeholder="Rechercher un mot, un contexte…" oninput="renderList()">
+    <div class="seg" style="margin-bottom:8px">${["Tous","Nouveaux","Fragiles","Moyens","Maîtrisés"].map((n,i)=>`<button class="${LFILTER===i-1?"on":""}" onclick="LFILTER=${i-1};list()">${n}</button>`).join("")}</div>
+    <div id="lst"></div>`);
+  dock(null); renderList();
+}
+function renderList(){
+  const q=strip(document.getElementById("q").value);
+  const r=WORDS.filter(w=>(LFILTER<0||level(w)===LFILTER) && (!q || strip(w.mot+" "+w.def+" "+w.ctx).includes(q))).slice().reverse();
+  document.getElementById("lst").innerHTML=r.map(liHTML).join("")||`<p class="meta center">Aucun résultat</p>`;
+}
+async function detail(id){
+  const w=WORDS.find(x=>x.id===id), p=PROG[id];
+  closeSheet();
+  const bg=document.createElement("div"); bg.className="sheet-bg"; bg.onclick=closeSheet;
+  const sh=document.createElement("div"); sh.className="sheet";
+  sh.innerHTML=`<div class="in"><div class="grab"></div>${answerCard(w)}
+    <div class="meta">${p&&p.seen?`Vu ${p.seen} fois · ${p.ok} ✓ / ${p.ko} ✗ · niveau ${p.box} · prochaine révision ${p.due<=Date.now()?"maintenant":new Date(p.due).toLocaleDateString("fr-FR")}`:"Jamais interrogé"}</div>
+    <div class="row" style="margin-top:14px;flex-wrap:wrap">
+      <label class="smallbtn">📷 Ma photo<input type="file" accept="image/*" hidden onchange="setPhoto('${id}',this)"></label>
+      ${IMGKEYS.has(id)?`<button class="smallbtn" onclick="delPhoto('${id}')">🗑 Retirer la photo</button>`:""}
+      <button class="smallbtn" onclick="closeSheet()">Fermer</button>
+    </div></div>`;
+  document.body.append(bg,sh);
+  if(hasImg(w)){ const src=await getImg(w); const el=sh.querySelector("#fbimgwrap"); if(src&&el) el.innerHTML=`<img class="fbimg" src="${src}" alt="">`; }
+}
+function closeSheet(){ document.querySelectorAll(".sheet,.sheet-bg").forEach(e=>e.remove()); }
+async function setPhoto(id,input){
+  const f=input.files[0]; if(!f) return;
+  try{ const src=await resizeFile(f); await IDB.set(id,{src,from:"me"}); IMGKEYS.add(id); imgMem[id]=src; toast("Photo enregistrée"); detail(id); }catch(e){ toast("Image illisible"); }
+}
+async function delPhoto(id){ await IDB.del(id); IMGKEYS.delete(id); delete imgMem[id]; const w=WORDS.find(x=>x.id===id); if(w) w.wiki=""; saveWords(); toast("Photo retirée"); detail(id); }
+
+/* ---------- Réglages ---------- */
+function settings(){
+  h(`<div class="top"><button class="iconbtn" onclick="home()">‹</button><div class="brand" style="font-size:19px">Réglages</div><span style="width:42px"></span></div>
+    <h3 class="sec">Questions par séance</h3>
+    <div class="seg">${[8,12,20,30].map(n=>`<button class="${META.size===n?"on":""}" onclick="META.size=${n};save();settings()">${n}</button>`).join("")}</div>
+
+    <h3 class="sec">Photos hors ligne</h3>
+    <p class="meta" style="margin-top:0">Télécharge maintenant toutes les images (Wikipédia) pour pouvoir réviser sans réseau. ${IMGKEYS.size} en cache.</p>
+    <button class="pill" style="width:100%" onclick="prefetch(this)">⬇️ Précharger les photos</button>
+
+    <h3 class="sec">Mettre à jour mes mots</h3>
+    <p class="meta" style="margin-top:0">Dans Google Sheets : Fichier › Télécharger › CSV, puis choisis le fichier ici. Colonnes : date, mot, définition, contexte. Ta progression est conservée pour les mots existants.</p>
+    <label class="pill" style="display:block">📄 Importer un CSV<input type="file" accept=".csv,text/csv,text/plain" hidden onchange="importCSV(this)"></label>
+
+    <h3 class="sec">Sauvegarde</h3>
+    <p class="meta" style="margin-top:0">Tout est stocké uniquement sur ce téléphone. Exporte de temps en temps : un nettoyage du navigateur effacerait ta progression.</p>
+    <div class="row"><button class="pill" onclick="exportProg()">💾 Exporter</button><label class="pill">📥 Restaurer<input type="file" accept=".json,application/json" hidden onchange="importProg(this)"></label></div>
+
+    <h3 class="sec">Zone sensible</h3>
+    <button class="pill" style="width:100%;color:var(--ko)" onclick="if(confirm('Effacer toute la progression ?')){PROG={};META.streak=0;META.history=[];save();toast('Progression remise à zéro');home();}">Remettre la progression à zéro</button>
+    <p class="meta center" style="margin-top:26px">Méthode : rappel actif + répétition espacée (boîtes de Leitner, intervalles 1-2-4-8-16-32-64-120 j) + alternance des types de questions.</p>`);
+  dock(null);
+}
+async function prefetch(btn){
+  const ws=WORDS.filter(w=>w.wiki); let n=0; btn.disabled=true;
+  for(const w of ws){ await getImg(w); n++; btn.textContent=`⬇️ ${n}/${ws.length}…`; }
+  btn.textContent=`✓ ${[...IMGKEYS].length} photos en cache`;
+}
+function parseCSV(t){
+  const rows=[]; let row=[], f="", q=false;
+  for(let i=0;i<t.length;i++){ const c=t[i];
+    if(q){ if(c==='"'){ if(t[i+1]==='"'){f+='"';i++;} else q=false; } else f+=c; }
+    else if(c==='"') q=true; else if(c===','){ row.push(f); f=""; }
+    else if(c==='\n'||c==='\r'){ if(c==='\r'&&t[i+1]==='\n') i++; row.push(f); rows.push(row); row=[]; f=""; }
+    else f+=c; }
+  if(f||row.length){ row.push(f); rows.push(row); }
+  return rows;
+}
+function importCSV(input){
+  const file=input.files[0]; if(!file) return;
+  file.text().then(t=>{
+    const rows=parseCSV(t).filter(r=>r[1]&&r[1].trim());
+    if(rows.length && /mot/i.test(rows[0][1]) && !/\d/.test(rows[0][0])) rows.shift();
+    const byMot={}; WORDS.forEach(w=>byMot[strip(w.mot.trim())]=w);
+    let maxId=WORDS.reduce((m,w)=>Math.max(m,+w.id.slice(1)||0),0), added=0;
+    const nw=rows.map(r=>{ const [date,mot,def,ctx]=[0,1,2,3].map(i=>(r[i]||"").trim()); const old=byMot[strip(mot)];
+      if(old) return {...old,date,mot,def:def||old.def,ctx};
+      added++; return {id:"w"+(++maxId),date,mot,def,ctx,wiki:"",note:""}; });
+    if(!nw.length){ toast("Fichier vide ou illisible"); return; }
+    WORDS=nw; saveWords(); toast(`${nw.length} mots · ${added} nouveau(x)`); home();
+  });
+}
+function exportProg(){
+  const blob=new Blob([JSON.stringify({v:1,words:WORDS,prog:PROG,meta:META})],{type:"application/json"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=`mots888-sauvegarde-${today()}.json`; a.click();
+}
+function importProg(input){
+  const f=input.files[0]; if(!f) return;
+  f.text().then(t=>{ try{ const d=JSON.parse(t); if(d.words) {WORDS=d.words; saveWords();} PROG=d.prog||{}; META=d.meta||META; save(); toast("Sauvegarde restaurée"); home(); }catch(e){ toast("Fichier invalide"); } });
+}
+
+home();
+</script>
+</body>
+</html>
